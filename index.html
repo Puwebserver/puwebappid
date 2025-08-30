@@ -4,40 +4,105 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your App</title>
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overflow: hidden;
-  }
-  iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-  /* Hide Adalo Add-to-Home prompt */
-  .add-to-home-screen-prompt,
-  [data-testid="pwa-banner"] {
-    display: none !important;
-  }
+    html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        background: #ffffff;
+        overflow: hidden;
+    }
+
+    /* Loading screen */
+    #loading-screen {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        text-align: center;
+        background-color: #f8f8f8;
+        color: #333;
+        font-size: 1.2em;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 9999;
+    }
+
+    .spinner {
+        border: 4px solid #e0e0e0;
+        border-top: 4px solid #007aff; /* iOS blue */
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: none; /* hidden until loading is done */
+    }
 </style>
 </head>
 <body>
-<iframe src="https://previewer.adalo.com/748c6ecc-e57d-4420-ad31-7c2587eba464" allow="fullscreen"></iframe>
+
+<!-- Loading screen -->
+<div id="loading-screen">
+    <div class="spinner"></div>
+    <div id="loading-text">Downloading resource packs…</div>
+</div>
+
+<!-- Adalo app -->
+<iframe id="app-frame" src="https://previewer.adalo.com/748c6ecc-e57d-4420-ad31-7c2587eba464" allow="fullscreen"></iframe>
 
 <script>
-// Pretend app is in standalone mode so Adalo doesn't show prompt
+// Fake loading messages
+const messages = [
+    "Downloading resource packs…",
+    "Please wait…",
+    "Connecting to Puweb server…",
+    "You’re almost there…"
+];
+
+let msgIndex = 0;
+const loadingText = document.getElementById('loading-text');
+
+setInterval(() => {
+    msgIndex = (msgIndex + 1) % messages.length;
+    loadingText.textContent = messages[msgIndex];
+}, 1000);
+
+// After 4 seconds, hide loading screen and show app
+setTimeout(() => {
+    document.getElementById('loading-screen').style.display = 'none';
+    const iframe = document.getElementById('app-frame');
+    iframe.style.display = 'block';
+}, 4000);
+
+// Pretend standalone mode so Adalo hides prompt
 Object.defineProperty(window.navigator, 'standalone', {
     value: true,
     configurable: true
 });
 
-// Remove banner elements if Adalo injects them later
+// Remove Add-to-Home banner if injected later
 const hideBanner = () => {
     const banner = document.querySelector('.add-to-home-screen-prompt, [data-testid="pwa-banner"]');
     if (banner) banner.style.display = 'none';
 };
 setInterval(hideBanner, 1000);
 </script>
+
 </body>
 </html>
