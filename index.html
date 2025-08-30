@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your App</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  /* Hide Adalo Add-to-Home prompt */
+  .add-to-home-screen-prompt,
+  [data-testid="pwa-banner"] {
+    display: none !important;
+  }
+</style>
+</head>
+<body>
+<iframe src="https://previewer.adalo.com/748c6ecc-e57d-4420-ad31-7c2587eba464" allow="fullscreen"></iframe>
+
+<script>
+// Pretend app is in standalone mode so Adalo doesn't show prompt
+Object.defineProperty(window.navigator, 'standalone', {
+    value: true,
+    configurable: true
+});
+
+// Remove banner elements if Adalo injects them later
+const hideBanner = () => {
+    const banner = document.querySelector('.add-to-home-screen-prompt, [data-testid="pwa-banner"]');
+    if (banner) banner.style.display = 'none';
+};
+setInterval(hideBanner, 1000);
+</script>
+</body>
+</html>
