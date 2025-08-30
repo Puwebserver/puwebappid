@@ -8,66 +8,53 @@
         margin: 0;
         padding: 0;
         height: 100%;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-        background: #ffffff;
+        background: #000;
+        color: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Roboto, Arial, sans-serif;
         overflow: hidden;
     }
 
     /* Loading screen */
     #loading-screen {
         display: flex;
-        flex-direction: column;
         justify-content: center;
         align-items: center;
         height: 100%;
         text-align: center;
-        background-color: #f8f8f8;
-        color: #333;
-        font-size: 1.2em;
+        font-size: 1.5em;
         position: absolute;
         width: 100%;
         height: 100%;
         top: 0;
         left: 0;
         z-index: 9999;
+        background: #000;
     }
 
-    .spinner {
-        border: 4px solid #e0e0e0;
-        border-top: 4px solid #007aff; /* iOS blue */
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin-bottom: 20px;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+    #loading-text {
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
     }
 
     iframe {
         width: 100%;
         height: 100%;
         border: none;
-        display: none; /* hidden until loading is done */
+        display: none;
     }
 </style>
 </head>
 <body>
 
-<!-- Loading screen -->
+<!-- Fake Loading Screen -->
 <div id="loading-screen">
-    <div class="spinner"></div>
     <div id="loading-text">Downloading resource packs…</div>
 </div>
 
-<!-- Adalo app -->
+<!-- Adalo App -->
 <iframe id="app-frame" src="https://previewer.adalo.com/748c6ecc-e57d-4420-ad31-7c2587eba464" allow="fullscreen"></iframe>
 
 <script>
-// Fake loading messages
 const messages = [
     "Downloading resource packs…",
     "Please wait…",
@@ -75,22 +62,38 @@ const messages = [
     "You’re almost there…"
 ];
 
-let msgIndex = 0;
 const loadingText = document.getElementById('loading-text');
+let msgIndex = 0;
 
-setInterval(() => {
-    msgIndex = (msgIndex + 1) % messages.length;
-    loadingText.textContent = messages[msgIndex];
-}, 1000);
+function showMessage(index) {
+    loadingText.style.opacity = 0;
+    setTimeout(() => {
+        loadingText.textContent = messages[index];
+        loadingText.style.opacity = 1;
+    }, 500);
+}
 
-// After 4 seconds, hide loading screen and show app
+showMessage(msgIndex);
+
+const messageInterval = setInterval(() => {
+    msgIndex++;
+    if (msgIndex < messages.length) {
+        showMessage(msgIndex);
+    }
+}, 1500);
+
+// After ~4.5 seconds, fade out loading and show app
 setTimeout(() => {
-    document.getElementById('loading-screen').style.display = 'none';
-    const iframe = document.getElementById('app-frame');
-    iframe.style.display = 'block';
-}, 4000);
+    document.getElementById('loading-screen').style.opacity = 0;
+    setTimeout(() => {
+        document.getElementById('loading-screen').style.display = 'none';
+        const iframe = document.getElementById('app-frame');
+        iframe.style.display = 'block';
+    }, 1000);
+    clearInterval(messageInterval);
+}, 4500);
 
-// Pretend standalone mode so Adalo hides prompt
+// Spoof standalone mode for Adalo
 Object.defineProperty(window.navigator, 'standalone', {
     value: true,
     configurable: true
